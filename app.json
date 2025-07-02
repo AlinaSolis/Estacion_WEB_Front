@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "wheaterapp",
+    "slug": "wheaterapp",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/UTD.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/UTD.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/UTD.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}

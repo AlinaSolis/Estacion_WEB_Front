@@ -1,0 +1,45 @@
+{
+  "name": "wheaterapp",
+  "license": "0BSD",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web"
+  },
+  "dependencies": {
+    "@expo/metro-runtime": "~5.0.4",
+    "@react-native-community/datetimepicker": "^8.4.1",
+    "@react-navigation/drawer": "^6.7.2",
+    "@react-navigation/native": "^7.1.11",
+    "@react-navigation/native-stack": "^7.3.16",
+    "@react-navigation/stack": "^6.4.1",
+    "expo": "~53.0.11",
+    "expo-status-bar": "~2.2.3",
+    "lucide-react": "^0.514.0",
+    "moment": "^2.30.1",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "react-native": "0.79.3",
+    "react-native-calendars": "^1.1313.0",
+    "react-native-chart-kit": "^6.12.0",
+    "react-native-gesture-handler": "~2.24.0",
+    "react-native-reanimated": "~3.17.4",
+    "react-native-safe-area-context": "^5.4.1",
+    "react-native-screens": "~4.11.1",
+    "react-native-svg": "15.11.2",
+    "react-native-vector-icons": "^10.2.0",
+    "react-native-web": "^0.20.0",
+    "recharts": "^2.15.3"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.2",
+    "@types/moment": "^2.11.29",
+    "@types/react": "~19.0.10",
+    "@types/react-native-vector-icons": "^6.4.18",
+    "typescript": "~5.8.3"
+  },
+  "private": true
+}
