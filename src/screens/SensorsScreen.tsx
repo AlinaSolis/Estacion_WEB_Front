@@ -1,6 +1,5 @@
-// screens/SensorsScreen.tsx
-import React from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Switch, StatusBar } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation, DrawerActions } from '@react-navigation/native';
 
@@ -19,12 +18,12 @@ const colors = {
   light: '#F39C12',
   error: '#E74C3C',
   success: '#2ECC71',
+  inactiveBg: '#F5F5F5',
 };
 
 const SensorsScreen = () => {
   const navigation = useNavigation();
-
-  const sensors = [
+  const [sensors, setSensors] = useState([
     {
       id: 1,
       name: 'Sensor de Temperatura',
@@ -33,37 +32,13 @@ const SensorsScreen = () => {
       color: colors.temperature,
       parameters: 'Temperatura (-40°C a 80°C)',
       accuracy: '±0.5°C',
-      status: 'Activo',
+      active: true,
       lastReading: '25.4°C',
       lastUpdate: 'Hace 2 minutos',
       voltage: '3.3V',
     },
-    {
-      id: 2,
-      name: 'Sensor de Humedad',
-      model: 'DHT22',
-      icon: 'water-drop',
-      color: colors.humidity,
-      parameters: 'Humedad relativa (0% a 100%)',
-      accuracy: '±2%',
-      status: 'Activo',
-      lastReading: '65%',
-      lastUpdate: 'Hace 2 minutos',
-      voltage: '3.3V',
-    },
-    {
-      id: 3,
-      name: 'Sensor de Presión Atmosférica',
-      model: 'BMP280',
-      icon: 'speed',
-      color: colors.pressure,
-      parameters: 'Presión (300hPa a 1100hPa)',
-      accuracy: '±1 hPa',
-      status: 'Activo',
-      lastReading: '1013.25 hPa',
-      lastUpdate: 'Hace 3 minutos',
-      voltage: '3.3V',
-    },
+
+    
     {
       id: 4,
       name: 'Sensor de Velocidad del Viento',
@@ -72,24 +47,12 @@ const SensorsScreen = () => {
       color: colors.wind,
       parameters: 'Velocidad (0 a 50 m/s)',
       accuracy: '±0.5 m/s',
-      status: 'Activo',
+      active: true,
       lastReading: '12 km/h',
       lastUpdate: 'Hace 1 minuto',
       voltage: '5V',
     },
-    {
-      id: 5,
-      name: 'Sensor de Lluvia',
-      model: 'Pluviómetro',
-      icon: 'grain',
-      color: colors.rain,
-      parameters: 'Precipitación (0 a 200 mm/h)',
-      accuracy: '±1 mm',
-      status: 'Activo',
-      lastReading: '0 mm',
-      lastUpdate: 'Hace 5 minutos',
-      voltage: '5V',
-    },
+    
     {
       id: 6,
       name: 'Sensor de Radiación Solar',
@@ -98,15 +61,24 @@ const SensorsScreen = () => {
       color: colors.light,
       parameters: 'Intensidad lumínica (1-65535 lux)',
       accuracy: '±20%',
-      status: 'Inactivo',
+      active: false,
       lastReading: 'N/A',
       lastUpdate: 'Hace 1 hora',
       voltage: '3.3V',
     },
-  ];
+  ]);
+
+  const toggleSensor = (id: number) => {
+    setSensors(sensors.map(sensor => 
+      sensor.id === id ? { ...sensor, active: !sensor.active } : sensor
+    ));
+  };
 
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
+      
+      {/* Barra de navegación estática */}
       <View style={styles.header}>
         <TouchableOpacity 
           onPress={() => navigation.dispatch(DrawerActions.openDrawer())} 
@@ -114,91 +86,105 @@ const SensorsScreen = () => {
         >
           <Icon name="menu" size={28} color={colors.white} />
         </TouchableOpacity>
-        <Text style={styles.title}> Sensores IoT</Text>
+        <Text style={styles.title}>Sensores IoT</Text>
       </View>
 
-      <View style={styles.content}>
-        <View style={styles.summaryCard}>
-          <Text style={styles.sectionTitle}>Resumen del Sistema</Text>
-          <View style={styles.summaryGrid}>
-            <View style={styles.summaryItem}>
-              <Icon name="sensors" size={24} color={colors.primary} />
-              <Text style={styles.summaryNumber}>{sensors.length}</Text>
-              <Text style={styles.summaryLabel}>Sensores</Text>
-            </View>
-            <View style={styles.summaryItem}>
-              <Icon name="check-circle" size={24} color={colors.success} />
-              <Text style={[styles.summaryNumber, { color: colors.success }]}>
-                {sensors.filter(s => s.status === 'Activo').length}
-              </Text>
-              <Text style={styles.summaryLabel}>Activos</Text>
-            </View>
-            <View style={styles.summaryItem}>
-              <Icon name="error" size={24} color={colors.error} />
-              <Text style={[styles.summaryNumber, { color: colors.error }]}>
-                {sensors.filter(s => s.status !== 'Activo').length}
-              </Text>
-              <Text style={styles.summaryLabel}>Inactivos</Text>
-            </View>
-          </View>
-        </View>
-
-        {sensors.map((sensor) => (
-          <View 
-            key={sensor.id} 
-            style={[
-              styles.card, 
-              { 
-                borderLeftColor: sensor.color, 
-                borderLeftWidth: 4,
-                backgroundColor: sensor.status === 'Activo' ? colors.cardBackground : '#F5F5F5',
-              }
-            ]}
-          >
-            <View style={styles.sensorHeader}>
-              <Icon name={sensor.icon} size={28} color={sensor.color} />
-              <View style={styles.sensorTitleContainer}>
-                <Text style={[styles.sensorName, { color: sensor.color }]}>{sensor.name}</Text>
-                <Text style={styles.sensorModel}>{sensor.model}</Text>
+      {/* Contenido desplazable */}
+      <ScrollView style={styles.scrollContainer}>
+        <View style={styles.content}>
+          <View style={styles.summaryCard}>
+            <Text style={styles.sectionTitle}>Resumen del Sistema</Text>
+            <View style={styles.summaryGrid}>
+              <View style={styles.summaryItem}>
+                <Icon name="sensors" size={24} color={colors.primary} />
+                <Text style={styles.summaryNumber}>{sensors.length}</Text>
+                <Text style={styles.summaryLabel}>Sensores</Text>
               </View>
-              <View style={[
-                styles.statusBadge, 
-                { 
-                  backgroundColor: sensor.status === 'Activo' ? colors.success : colors.error,
-                }
-              ]}>
-                <Text style={styles.statusText}>{sensor.status}</Text>
-              </View>
-            </View>
-            
-            <View style={styles.sensorDetails}>
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Parámetros:</Text>
-                <Text style={styles.detailValue}>{sensor.parameters}</Text>
-              </View>
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Precisión:</Text>
-                <Text style={styles.detailValue}>{sensor.accuracy}</Text>
-              </View>
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Voltaje:</Text>
-                <Text style={styles.detailValue}>{sensor.voltage}</Text>
-              </View>
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Última lectura:</Text>
-                <Text style={[styles.detailValue, { fontWeight: 'bold', color: sensor.color }]}>
-                  {sensor.lastReading}
+              <View style={styles.summaryItem}>
+                <Icon name="check-circle" size={24} color={colors.success} />
+                <Text style={[styles.summaryNumber, { color: colors.success }]}>
+                  {sensors.filter(s => s.active).length}
                 </Text>
+                <Text style={styles.summaryLabel}>Activos</Text>
               </View>
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Actualizado:</Text>
-                <Text style={styles.detailValue}>{sensor.lastUpdate}</Text>
+              <View style={styles.summaryItem}>
+                <Icon name="error" size={24} color={colors.error} />
+                <Text style={[styles.summaryNumber, { color: colors.error }]}>
+                  {sensors.filter(s => !s.active).length}
+                </Text>
+                <Text style={styles.summaryLabel}>Inactivos</Text>
               </View>
             </View>
           </View>
-        ))}
-      </View>
-    </ScrollView>
+
+          {sensors.map((sensor) => (
+            <View 
+              key={sensor.id} 
+              style={[
+                styles.card, 
+                { 
+                  borderLeftColor: sensor.color, 
+                  borderLeftWidth: 4,
+                  backgroundColor: sensor.active ? colors.cardBackground : colors.inactiveBg,
+                }
+              ]}
+            >
+              <View style={styles.sensorHeader}>
+                <Icon name={sensor.icon} size={28} color={sensor.color} />
+                <View style={styles.sensorTitleContainer}>
+                  <Text style={[styles.sensorName, { color: sensor.color }]}>{sensor.name}</Text>
+                  <Text style={styles.sensorModel}>{sensor.model}</Text>
+                </View>
+                <Switch
+                  value={sensor.active}
+                  onValueChange={() => toggleSensor(sensor.id)}
+                  trackColor={{ false: '#767577', true: colors.success }}
+                  thumbColor={colors.white}
+                />
+              </View>
+              
+              <View style={styles.sensorDetails}>
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>Parámetros:</Text>
+                  <Text style={styles.detailValue}>{sensor.parameters}</Text>
+                </View>
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>Precisión:</Text>
+                  <Text style={styles.detailValue}>{sensor.accuracy}</Text>
+                </View>
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>Voltaje:</Text>
+                  <Text style={styles.detailValue}>{sensor.voltage}</Text>
+                </View>
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>Última lectura:</Text>
+                  <Text style={[styles.detailValue, { fontWeight: 'bold', color: sensor.color }]}>
+                    {sensor.lastReading}
+                  </Text>
+                </View>
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>Actualizado:</Text>
+                  <Text style={styles.detailValue}>{sensor.lastUpdate}</Text>
+                </View>
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>Estado:</Text>
+                  <View style={[
+                    styles.statusBadge, 
+                    { 
+                      backgroundColor: sensor.active ? colors.success : colors.error,
+                    }
+                  ]}>
+                    <Text style={styles.statusText}>
+                      {sensor.active ? 'Activo' : 'Inactivo'}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            </View>
+          ))}
+        </View>
+      </ScrollView>
+    </View>
   );
 };
 
@@ -207,12 +193,20 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
+  scrollContainer: {
+    flex: 1,
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
-    paddingTop: 50,
+    paddingTop: StatusBar.currentHeight ? StatusBar.currentHeight + 10 : 50,
     backgroundColor: colors.primary,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
   },
   menuButton: {
     marginRight: 16,
@@ -226,6 +220,7 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 20,
+    paddingBottom: 30,
   },
   summaryCard: {
     backgroundColor: colors.cardBackground,
@@ -297,6 +292,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 12,
+    alignSelf: 'flex-start',
   },
   statusText: {
     color: colors.white,
@@ -309,6 +305,7 @@ const styles = StyleSheet.create({
   detailRow: {
     flexDirection: 'row',
     marginBottom: 8,
+    alignItems: 'center',
   },
   detailLabel: {
     fontSize: 14,
