@@ -15,11 +15,12 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation, DrawerActions } from '@react-navigation/native';
+import { useAuth } from '../auth/AuthContext';
 
 // Define color palette
 const colors = {
   primary: '#0A7764',
-  secondary: '#D78909',
+  secondary: '#0A7764',
   white: '#FFFFFF',
   textDark: '#333333',
   textMedium: '#5A5A5A',
@@ -525,37 +526,39 @@ const styles = StyleSheet.create({
 const AdminLoginScreen = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+;
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const navigation = useNavigation();
+  const { login, logout, isLoggedIn } = useAuth();
 
   const openDrawer = () => {
     navigation.dispatch(DrawerActions.openDrawer());
   };
 
   const handleLogin = () => {
-    // Credenciales de administrador (en un caso real, esto debería ser una autenticación segura)
-    const adminCredentials = {
-      username: 'admin',
-      password: 'admin123'
-    };
-
-    if (username === adminCredentials.username && password === adminCredentials.password) {
-      setIsLoggedIn(true);
-      Alert.alert('Éxito', 'Inicio de sesión exitoso como administrador');
-    } else {
-      Alert.alert('Error', 'Credenciales incorrectas');
-    }
+  const adminCredentials = {
+    username: 'admin',
+    password: 'admin123'
   };
+
+  if (username === adminCredentials.username && password === adminCredentials.password) {
+    login(); // <-- actualiza estado global
+    Alert.alert('Éxito', 'Inicio de sesión exitoso como administrador');
+  } else {
+    Alert.alert('Error', 'Credenciales incorrectas');
+  }
+};
+
 
   const handleLogout = () => {
-    setIsLoggedIn(false);
-    setUsername('');
-    setPassword('');
-    setRememberMe(false);
-    Alert.alert('Sesión Cerrada', 'Has cerrado sesión correctamente');
-  };
+  logout(); // <-- importante
+  setUsername('');
+  setPassword('');
+  setRememberMe(false);
+  Alert.alert('Sesión Cerrada', 'Has cerrado sesión correctamente');
+};
+
 
   const adminOptions = [
     {

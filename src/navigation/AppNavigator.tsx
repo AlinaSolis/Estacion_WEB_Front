@@ -5,6 +5,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { AuthProvider, useAuth } from '../auth/AuthContext';
 
 // Importar pantallas
 import HomeScreen from '../screens/HomeScreen';
@@ -17,10 +18,11 @@ import AdminLoginScreen from '../screens/AdminLoginScreen';
 const Drawer = createDrawerNavigator();
 
 const CustomDrawerContent = ({ navigation }: DrawerContentComponentProps) => {
+  const {isLoggedIn, logout} = useAuth();
   return (
-     <SafeAreaView style={styles.drawerSafeArea} edges={['right', 'bottom', 'left']}>
+    <SafeAreaView style={styles.drawerSafeArea} edges={['right', 'bottom', 'left']}>
       {/* Cambiar View por ScrollView */}
-      <ScrollView 
+      <ScrollView
         style={styles.drawerContainer}
         showsVerticalScrollIndicator={true}
         bounces={true}
@@ -29,8 +31,8 @@ const CustomDrawerContent = ({ navigation }: DrawerContentComponentProps) => {
       >
         {/* Encabezado del drawer */}
         <View style={styles.drawerHeader}>
-          <Image 
-            source={require('../../assets/UTD.png')} 
+          <Image
+            source={require('../../assets/UTD.png')}
             style={styles.logo}
             resizeMode="contain"
           />
@@ -40,14 +42,14 @@ const CustomDrawerContent = ({ navigation }: DrawerContentComponentProps) => {
 
         {/* Elementos de navegación */}
         {[
-          { name: 'Home', icon: 'home', label: 'Inicio', color: '#0A7764' },
-          { name: 'Temperature', icon: 'device-thermostat', label: 'Temperatura', color: '#D78909' },
-          { name: 'Wind', icon: 'air', label: 'Viento', color: '#0A7764' },
-          { name: 'Sun', icon: 'wb-sunny', label: 'Radiación Solar', color: '#D78909' },
-          { name: 'Sensors', icon: 'sensors', label: 'Sensores IoT', color: '#0A7764' },
-          { name: 'AdminLogin', icon: 'admin-panel-settings', label: 'Login', color: '#D78919' },
-          { name: 'About', icon: 'info', label: 'Sobre Nosotros', color: '#0A7764' },
-        ].map((item, index) => (
+          { name: 'Home', icon: 'home', label: 'Inicio', color: '#0A7764', show: true },
+          { name: 'Temperature', icon: 'device-thermostat', label: 'Temperatura', color: '#D78909', show: true },
+          { name: 'Wind', icon: 'air', label: 'Viento', color: '#0A7764', show: true },
+          { name: 'Sun', icon: 'wb-sunny', label: 'Radiación Solar', color: '#D78909', show: true },
+          { name: 'AdminLogin', icon: 'admin-panel-settings', label: 'Login', color: '#D78919', show: !isLoggedIn },
+          { name: 'About', icon: 'info', label: 'Sobre Nosotros', color: '#0A7764', show: true },
+          { name: 'Sensors', icon: 'sensors', label: 'Sensores IoT', color: '#0A7764', show: isLoggedIn },
+        ].filter(item => item.show).map((item, index) => (
           <TouchableOpacity
             key={index}
             style={styles.drawerItem}
@@ -57,6 +59,13 @@ const CustomDrawerContent = ({ navigation }: DrawerContentComponentProps) => {
             <Text style={[styles.drawerItemText, { color: item.color }]}>{item.label}</Text>
           </TouchableOpacity>
         ))}
+        
+        {isLoggedIn && (
+          <TouchableOpacity style={styles.drawerItem} onPress={logout}>
+            <Icon name="logout" size={24} color="#B00020" style={styles.drawerIcon} />
+            <Text style={[styles.drawerItemText, { color: '#B00020' }]}>Cerrar Sesión</Text>
+          </TouchableOpacity>
+        )}
       </ScrollView>
 
       {/* Pie de página fijo fuera del ScrollView */}
@@ -69,36 +78,39 @@ const CustomDrawerContent = ({ navigation }: DrawerContentComponentProps) => {
 
 const AppNavigator = () => {
   return (
-    <SafeAreaProvider>
-      <NavigationContainer>
-        <Drawer.Navigator
-          drawerContent={(props: DrawerContentComponentProps) => <CustomDrawerContent {...props} />}
-          screenOptions={{
-            drawerPosition: 'left',
-            headerShown: false,
-            drawerType: 'slide',
-            drawerStyle: {
-               width: 300,
-  backgroundColor: 'transparent', // O el color que prefieras
-  shadowColor: 'transparent', // Para quitar la sombra
-  elevation: 0,   },
-            overlayColor: 'rgba(0, 0, 0, 0.3)',
-            sceneContainerStyle: {
-              backgroundColor: 'transparent',
-            },
-          }}
-          initialRouteName="Home"
-        >
-          <Drawer.Screen name="Home" component={HomeScreen} />
-          <Drawer.Screen name="Temperature" component={TemperatureScreen} />
-          <Drawer.Screen name="Wind" component={WindScreen} />
-          <Drawer.Screen name="Sun" component={SunScreen} />
-          <Drawer.Screen name="Sensors" component={SensorsScreen} />
-           <Drawer.Screen name="AdminLogin" component={AdminLoginScreen} />
-          <Drawer.Screen name="About" component={AboutScreen} />
-        </Drawer.Navigator>
-      </NavigationContainer>
-    </SafeAreaProvider>
+    <AuthProvider>
+      <SafeAreaProvider>
+        <NavigationContainer>
+          <Drawer.Navigator
+            drawerContent={(props: DrawerContentComponentProps) => <CustomDrawerContent {...props} />}
+            screenOptions={{
+              drawerPosition: 'left',
+              headerShown: false,
+              drawerType: 'slide',
+              drawerStyle: {
+                width: 300,
+                backgroundColor: 'transparent', // O el color que prefieras
+                shadowColor: 'transparent', // Para quitar la sombra
+                elevation: 0,
+              },
+              overlayColor: 'rgba(0, 0, 0, 0.3)',
+              sceneContainerStyle: {
+                backgroundColor: 'transparent',
+              },
+            }}
+            initialRouteName="Home"
+          >
+            <Drawer.Screen name="Home" component={HomeScreen} />
+            <Drawer.Screen name="Temperature" component={TemperatureScreen} />
+            <Drawer.Screen name="Wind" component={WindScreen} />
+            <Drawer.Screen name="Sun" component={SunScreen} />
+            <Drawer.Screen name="Sensors" component={SensorsScreen} />
+            <Drawer.Screen name="AdminLogin" component={AdminLoginScreen} />
+            <Drawer.Screen name="About" component={AboutScreen} />
+          </Drawer.Navigator>
+        </NavigationContainer>
+      </SafeAreaProvider>
+    </AuthProvider>
   );
 };
 
@@ -171,7 +183,7 @@ const styles = StyleSheet.create({
     color: '#757575',
     textAlign: 'center',
   },
-  
+
 });
 
 
